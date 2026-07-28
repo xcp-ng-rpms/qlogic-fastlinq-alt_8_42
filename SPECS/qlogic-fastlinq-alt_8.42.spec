@@ -1,0 +1,69 @@
+%define vendor_name Qlogic
+%define vendor_label qlogic
+%define driver_name fastlinq
+
+# XCP-ng: install to the override directory
+%define module_dir override
+
+Summary: %{vendor_name} %{driver_name} device drivers
+Name: %{vendor_label}-%{driver_name}-alt_8.42
+Version: 8.42.10.0
+Release: 1%{?dist}
+License: GPL
+
+# Extracted from XCP-ng qlogic-fastlinq repository
+Source0: qlogic-fastlinq-%{version}.tar.gz
+
+BuildRequires: gcc
+BuildRequires: kernel-devel
+Provides: vendor-driver
+Requires: kernel-uname-r = %{kernel_version}
+Requires(post): %{_sbindir}/depmod
+Requires(postun): %{_sbindir}/depmod
+Conflicts: %{vendor_label}-%{driver_name}-alt
+
+%description
+%{vendor_name} %{driver_name} device drivers for the Linux Kernel
+version %{kernel_version}.
+
+%prep
+%autosetup -p1 -n %{vendor_label}-%{driver_name}-%{version}
+
+%build
+%{make_build} -C /lib/modules/%{kernel_version}/build KVER=%{kernel_version} M=${PWD}/qed-%{version}/src  modules
+%{make_build} -C /lib/modules/%{kernel_version}/build KVER=%{kernel_version} M=${PWD}/qede-%{version}/src modules
+%{make_build} -C /lib/modules/%{kernel_version}/build KVER=%{kernel_version} M=${PWD}/qedr-%{version}/src modules
+%{make_build} -C ${PWD}/qedf-%{version} KVER=%{kernel_version} build_pre
+%{make_build} -C /lib/modules/%{kernel_version}/build KVER=%{kernel_version} M=${PWD}/qedf-%{version} modules
+%{make_build} -C ${PWD}/qedi-%{version} KVER=%{kernel_version} build_pre
+%{make_build} -C /lib/modules/%{kernel_version}/build KVER=%{kernel_version} M=${PWD}/qedi-%{version} modules
+
+%install
+%{__make} %{?_smp_mflags} -C /lib/modules/%{kernel_version}/build KVER=%{kernel_version} M=${PWD}/qed-%{version}/src  INSTALL_MOD_PATH=%{buildroot} INSTALL_MOD_DIR=%{module_dir} DEPMOD=/bin/true modules_install
+%{__make} %{?_smp_mflags} -C /lib/modules/%{kernel_version}/build KVER=%{kernel_version} M=${PWD}/qede-%{version}/src INSTALL_MOD_PATH=%{buildroot} INSTALL_MOD_DIR=%{module_dir} DEPMOD=/bin/true modules_install
+%{__make} %{?_smp_mflags} -C /lib/modules/%{kernel_version}/build KVER=%{kernel_version} M=${PWD}/qedr-%{version}/src INSTALL_MOD_PATH=%{buildroot} INSTALL_MOD_DIR=%{module_dir} DEPMOD=/bin/true modules_install
+%{__make} %{?_smp_mflags} -C /lib/modules/%{kernel_version}/build KVER=%{kernel_version} M=${PWD}/qedf-%{version} INSTALL_MOD_PATH=%{buildroot} INSTALL_MOD_DIR=%{module_dir} DEPMOD=/bin/true modules_install
+%{__make} %{?_smp_mflags} -C /lib/modules/%{kernel_version}/build KVER=%{kernel_version} M=${PWD}/qedi-%{version} INSTALL_MOD_PATH=%{buildroot} INSTALL_MOD_DIR=%{module_dir} DEPMOD=/bin/true modules_install
+# mark modules executable so that strip-to-file can strip them
+find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chmod u+x
+mkdir -p %{buildroot}/lib/firmware/qed
+install -m 755 ${PWD}/qed-%{version}/src/qed_init_values_zipped-*.bin %{buildroot}/lib/firmware/qed
+
+%post
+%{_sbindir}/depmod %{kernel_version}
+%{regenerate_initrd_post}
+
+%postun
+%{_sbindir}/depmod %{kernel_version}
+%{regenerate_initrd_postun}
+
+%posttrans
+%{regenerate_initrd_posttrans}
+
+%files
+/lib/firmware
+/lib/modules/%{kernel_version}/*/*.ko
+
+%changelog
+* Tue Jul 28 2026 Thierry Escande <thierry.escande@vates.tech> 8.42.10.0-1
+- Initial package v8.42.10.0
