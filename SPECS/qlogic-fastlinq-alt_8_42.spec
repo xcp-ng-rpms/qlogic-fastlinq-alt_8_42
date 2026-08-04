@@ -6,9 +6,9 @@
 %define module_dir override
 
 Summary: %{vendor_name} %{driver_name} device drivers
-Name: %{vendor_label}-%{driver_name}-alt_8.42
+Name: %{vendor_label}-%{driver_name}-alt_8_42
 Version: 8.42.10.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL
 
 # Extracted from XCP-ng qlogic-fastlinq repository
@@ -65,5 +65,8 @@ install -m 755 ${PWD}/qed-%{version}/src/qed_init_values_zipped-*.bin %{buildroo
 /lib/modules/%{kernel_version}/*/*.ko
 
 %changelog
+* Mon Aug 03 2026 Thierry Escande <thierry.escande@vates.tech> 8.42.10.0-2
+- Rename package as qlogic-fastlinq-alt_8_42 for driver disk support
+
 * Tue Jul 28 2026 Thierry Escande <thierry.escande@vates.tech> 8.42.10.0-1
 - Initial package v8.42.10.0
