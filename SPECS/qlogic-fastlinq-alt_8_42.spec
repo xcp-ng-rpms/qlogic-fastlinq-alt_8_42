@@ -8,7 +8,10 @@
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}-alt_8_42
 Version: 8.42.10.0
-Release: 2%{?dist}
+Release: 3%{?dist}
+# Built against new kABI after cip rebase
+Requires: xcpng-kernel-kabi = 4.19.325-cip134+
+
 License: GPL
 
 # Extracted from XCP-ng qlogic-fastlinq repository
@@ -67,6 +70,9 @@ install -m 755 ${PWD}/qed-%{version}/src/qed_init_values_zipped-*.bin %{buildroo
 /lib/modules/%{kernel_version}/*/*.ko
 
 %changelog
+* Mon Aug 31 2026 Quentin Casasnovas <quentin.casasnovas@vates.tech> - 8.42.10.0-3
+- Rebuild for kernel v4.19.325-cip134
+
 * Mon Aug 03 2026 Thierry Escande <thierry.escande@vates.tech> 8.42.10.0-2
 - Rename package as qlogic-fastlinq-alt_8_42 for driver disk support
 
