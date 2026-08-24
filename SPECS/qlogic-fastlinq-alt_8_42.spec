@@ -14,6 +14,8 @@ License: GPL
 # Extracted from XCP-ng qlogic-fastlinq repository
 Source0: qlogic-fastlinq-%{version}.tar.gz
 
+Patch1000: 0001-qede-compat-check-for-prandom_bytes-in-prandom.h-as-.patch
+
 BuildRequires: gcc
 BuildRequires: kernel-devel
 Provides: vendor-driver

@@ -1,0 +1,68 @@
+From d02d1f2c59e1010cb0b17622eec45e8a1d3b09fb Mon Sep 17 00:00:00 2001
+From: Quentin Casasnovas <quentin.casasnovas@vates.tech>
+Date: Mon, 24 Aug 2026 16:49:57 +0200
+Subject: [PATCH] qede/compat: check for prandom_bytes in prandom.h as well.
+
+df9a9ac7a461 ("random32: move the pseudo-random 32-bit definitions to
+prandom.h") moved some definitions from random.h to prandom.h, ajust the
+compat layer to check at the right place.
+
+Signed-off-by: Quentin Casasnovas <quentin.casasnovas@vates.tech>
+---
+ qede-8.42.10.0/src/Makefile | 6 +++---
+ qedi-8.42.10.0/Makefile     | 3 ++-
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/qede-8.42.10.0/src/Makefile b/qede-8.42.10.0/src/Makefile
+index 35fee9de247f..992c570ae496 100644
+--- a/qede-8.42.10.0/src/Makefile
++++ b/qede-8.42.10.0/src/Makefile
+@@ -100,13 +100,13 @@ ROCE ?= 1
+ 
+ SOURCES = qede_main.c qede_fp.c qede_filter.c qede_ethtool.c qede_dcbnl.c qede_ptp.h qede_ptp.c qede.h qede_compat.h qede_hsi.h
+ ifeq ($(ROCE), 1)
+-	SOURCES += qede_rdma.c qede_rdma.h 
++	SOURCES += qede_rdma.c qede_rdma.h
+ endif
+ 
+ MODULE_NAME = qede
+ 
+ EXTRA_CFLAGS += -DDRV_MODULE_NAME=\"$(MODULE_NAME)\" -DCONFIG_DCB
+-obj-m += $(MODULE_NAME).o 
++obj-m += $(MODULE_NAME).o
+ qede-objs = $(patsubst %.c,%.o,$(filter %.c, $(SOURCES)))
+ 
+ # The && / || logic is very peculiar, and works opposite to what is expected, I.e., if The command running
+@@ -176,7 +176,7 @@ ifneq ($(shell echo 'int main(){return 0;}' | gcc -x c $(THUNK_OPTIONS) - 2>/dev
+ 	override EXTRA_CFLAGS += $(THUNK_OPTIONS)
+ endif
+ 
+-ifeq ($(shell grep "prandom_bytes" $(LINUXSRC)/include/linux/random.h > /dev/null 2>&1 && echo prandom_bytes),)
++ifeq ($(shell grep "prandom_bytes" $(LINUXSRC)/include/linux/{p,}random.h > /dev/null 2>&1 && echo prandom_bytes),)
+ 	override EXTRA_CFLAGS += -D_DEFINE_PRANDOM_BYTES_
+ endif
+ 
+diff --git a/qedi-8.42.10.0/Makefile b/qedi-8.42.10.0/Makefile
+index 56883f1df9e4..9a9c60fd277f 100644
+--- a/qedi-8.42.10.0/Makefile
++++ b/qedi-8.42.10.0/Makefile
+@@ -58,6 +58,7 @@ endef
+ 
+ DEFINES += $(call set-def,SESS_LOCK,scsi/libiscsi.h,back_lock)
+ DEFINES += $(call set-def,PRANDOM_API,linux/random.h,prandom_u32)
++DEFINES += $(call set-def,PRANDOM_API,linux/prandom.h,prandom_u32)
+ DEFINES += $(call set-def,STRUCT_SCSI_RSP,scsi/iscsi_proto.h,iscsi_scsi_rsp)
+ DEFINES += $(call set-def,STRUCT_SCSI_REQ,scsi/iscsi_proto.h,iscsi_scsi_req)
+ DEFINES += $(call set-def,STRUCT_LOGIN_REQ,scsi/iscsi_proto.h,iscsi_login_req)
+@@ -120,7 +121,7 @@ else
+ endif
+ 
+ ifneq ($(shell echo 'int main(){return 0;}' | gcc -x c $(THUNK_OPTIONS) - 2>/dev/null && echo thunk),)
+-  override EXTRA_CFLAGS += $(THUNK_OPTIONS) 
++  override EXTRA_CFLAGS += $(THUNK_OPTIONS)
+ endif
+ 
+ override EXTRA_CFLAGS += $(addprefix -D,$(DEFINES))
+-- 
+2.43.0
+
