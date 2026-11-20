@@ -8,14 +8,16 @@
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}-alt_8_42
 Version: 8.42.10.0
-Release: 2%{?dist}
+Release: 2.0.kernelpreview.1%{?dist}
 License: GPL
 
 # Extracted from XCP-ng qlogic-fastlinq repository
 Source0: qlogic-fastlinq-%{version}.tar.gz
 
+Patch1000: qede-compat-check-for-prandom_bytes-in-prandom.h-as-.patch
+
 BuildRequires: gcc
-BuildRequires: kernel-devel
+BuildRequires: kernel-devel >= 4.19.325-cip137.8.0.46.16
 Provides: vendor-driver
 Requires: kernel-uname-r = %{kernel_version}
 Requires(post): %{_sbindir}/depmod
@@ -65,6 +67,9 @@ install -m 755 ${PWD}/qed-%{version}/src/qed_init_values_zipped-*.bin %{buildroo
 /lib/modules/%{kernel_version}/*/*.ko
 
 %changelog
+* Mon Nov 16 2026 Quentin Casasnovas <quentin.casasnovas@vates.tech> - 8.42.10.0-2.0.kernelpreview.1
+- Rebuild for kernel v4.19.325-cip137
+
 * Mon Aug 03 2026 Thierry Escande <thierry.escande@vates.tech> 8.42.10.0-2
 - Rename package as qlogic-fastlinq-alt_8_42 for driver disk support
 
