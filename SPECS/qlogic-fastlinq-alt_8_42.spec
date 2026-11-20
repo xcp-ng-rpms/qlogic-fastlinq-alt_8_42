@@ -8,7 +8,7 @@
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}-alt_8_42
 Version: 8.42.10.0
-Release: 2.0.kernelpreview.1%{?dist}
+Release: 2.0.kernelpreview.1.0.testv0.1%{?dist}
 License: GPL
 
 # Extracted from XCP-ng qlogic-fastlinq repository
